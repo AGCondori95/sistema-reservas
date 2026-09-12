@@ -1,0 +1,29 @@
+[
+  {
+    "id": 1,
+    "name": "Corte de cabello",
+    "description": "Corte de cabello clásico para dama o caballero",
+    "duration": 30,
+    "price": 3500,
+    "category": "Peluquería",
+    "available": true
+  },
+  {
+    "id": 2,
+    "name": "Manicura completa",
+    "description": "Limado, esmaltado y cuidado de cutículas",
+    "duration": 45,
+    "price": 4000,
+    "category": "Estética",
+    "available": true
+  },
+  {
+    "id": 3,
+    "name": "Masaje descontracturante",
+    "description": "Masaje de espalda y cuello de 60 minutos",
+    "duration": 60,
+    "price": 7000,
+    "category": "Bienestar",
+    "available": false
+  }
+]

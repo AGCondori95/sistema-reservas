@@ -1,0 +1,25 @@
+{
+  "name": "sistema-reservas",
+  "version": "1.0.0",
+  "description": "Sistema backend de turnos y reservas con Node.js y ESM",
+  "type": "module",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "keywords": [
+    "node",
+    "esm",
+    "backend",
+    "reservas",
+    "turnos"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6"
+  }
+}
