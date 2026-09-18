@@ -2,7 +2,7 @@
   {
     "id": 1,
     "name": "Corte de cabello",
-    "description": "Corte de cabello clásico para dama o caballero",
+    "description": "Corte clásico para dama o caballero",
     "duration": 30,
     "price": 3500,
     "category": "Peluquería",
