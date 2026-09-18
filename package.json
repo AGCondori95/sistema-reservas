@@ -1,25 +1,25 @@
 {
-  "name": "sistema-reservas",
+  "name": "sistema_reservas",
   "version": "1.0.0",
-  "description": "Sistema backend de turnos y reservas con Node.js y ESM",
-  "type": "module",
+  "description": "",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "node --watch src/app.js"
   },
-  "keywords": [
-    "node",
-    "esm",
-    "backend",
-    "reservas",
-    "turnos"
-  ],
-  "license": "ISC",
-  "dependencies": {
-    "dotenv": "^17.4.2"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AGCondori95/sistema-reservas.git"
   },
-  "devDependencies": {
-    "prettier": "^3.9.6"
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/AGCondori95/sistema-reservas/issues"
+  },
+  "homepage": "https://github.com/AGCondori95/sistema-reservas#readme",
+  "dependencies": {
+    "dotenv": "^18.0.0"
   }
 }
