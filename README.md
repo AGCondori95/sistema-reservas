@@ -50,6 +50,36 @@ Cada servicio tiene esta forma:
 | `category`    | string  | Categoría                           |
 | `available`   | boolean | Si está disponible para reservar    |
 
+## Endpoints
+
+Base URL local: `http://localhost:8080/api/services`
+
+| Método | Ruta                 | Descripción                                                |
+| ------ | -------------------- | ---------------------------------------------------------- |
+| GET    | `/api/services`      | Todos los servicios. Filtros: `?category=`, `?available=`  |
+| GET    | `/api/services/:sid` | Servicio por id. `200` si existe, `404` si no              |
+| POST   | `/api/services`      | Crea un servicio. `201` si se crea, `400` si faltan campos |
+| PUT    | `/api/services/:sid` | Actualiza (no permite cambiar `id`). `200` o `404`         |
+| DELETE | `/api/services/:sid` | Elimina. `200` o `404`                                     |
+
+### Ejemplos
+
+```bash
+curl http://localhost:8080/api/services
+curl "http://localhost:8080/api/services?category=Estética&available=true"
+curl http://localhost:8080/api/services/2
+
+curl -X POST http://localhost:8080/api/services \\
+-H "Content-Type: application/json" \\
+-d '{"name":"Depilación","description":"Cera","duration":40,"price":5000,"category":"Estética","available":true}'
+
+curl -X PUT http://localhost:8080/api/services/1 \\
+-H "Content-Type: application/json" \\
+-d '{"price":9999}'
+
+curl -X DELETE http://localhost:8080/api/services/2
+```
+
 ## Métodos de `ServiceManager`
 
 ```javascript
