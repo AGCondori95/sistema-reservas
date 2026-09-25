@@ -26,6 +26,10 @@ class ServiceManager {
     this.services = JSON.parse(fileContent);
   }
 
+  #save() {
+    fs.writeFileSync(dataPath, JSON.stringify(this.services, null, 2));
+  }
+
   getServices() {
     return this.services;
   }
@@ -60,6 +64,7 @@ class ServiceManager {
     };
 
     this.services.push(newService);
+    this.#save();
     return newService;
   }
 
@@ -70,6 +75,7 @@ class ServiceManager {
     // Se descarta cualquier "id" que venga en updatedDate, así nunca lo pisa
     const { id: _ignored, ...changes } = updatedData;
     this.services[index] = { ...this.services[index], ...changes };
+    this.#save();
     return this.services[index];
   }
 
@@ -78,6 +84,7 @@ class ServiceManager {
     if (index === -1) return null;
 
     const [deleted] = this.services.splice(index, 1);
+    this.#save();
     return deleted;
   }
 }

@@ -1,8 +1,6 @@
-# Sistema de Reservas — Administrador de Servicios
+# Sistema de Reservas — Backend de Turnos y Reservas
 
-Backend inicial de un sistema de turnos y reservas hecho con **Node.js** y **ESM** (`import`/`export`). Implementa `ServiceManager`, una clase que gestiona en memoria los servicios que ofrece el negocio (alta, baja, modificación y consulta).
-
-Es una pre-entrega: todavía no hay servidor HTTP ni base de datos persistente. El foco es `ServiceManager` y una configuración de proyecto ordenada con validación de variables de entorno.
+Backend de un sistema de turnos y reservas hecho con **Node.js**, **Express** y **ESM** (`import`/`export`). Gestiona dos recursos — `services` y `bookings` — con persistencia en archivos JSON (`src/data/services.json` y `src/data/bookings.json`): los datos sobreviven a un reinicio del servidor.
 
 ## Requisitos
 
@@ -18,7 +16,7 @@ npm install
 
 ## Variables de entorno
 
-El proyecto valida al iniciar que existan estas variables (ver \`src/config/env.config.js\`). Si falta alguna, corta con un mensaje de error y código de salida 1.
+El proyecto valida al iniciar que existan estas variables (ver `src/config/env.config.js`). Si falta alguna, corta con un mensaje de error y código de salida 1.
 
 ```bash
 cp .env.example .env
@@ -32,13 +30,13 @@ cp .env.example .env
 ## Ejecución
 
 ```bash
-npm start # ejecuta src/app.js una vez
-npm run dev # se reinicia al detectar cambios
+npm start   # levanta el servidor Express (src/server.js) una vez
+npm run dev # igual, pero se reinicia al detectar cambios en archivos .js
 ```
 
-## Recurso: `services`
+El servidor queda escuchando en `http://localhost:<PORT>` (por defecto `8080`).
 
-Cada servicio tiene esta forma:
+## Recurso: `services`
 
 | Campo         | Tipo    | Descripción                         |
 | ------------- | ------- | ----------------------------------- |
@@ -50,9 +48,25 @@ Cada servicio tiene esta forma:
 | `category`    | string  | Categoría                           |
 | `available`   | boolean | Si está disponible para reservar    |
 
+## Recurso: `bookings`
+
+| Campo         | Tipo   | Descripción                                                     |
+| ------------- | ------ | --------------------------------------------------------------- |
+| `id`          | number | Identificador único, se genera solo                             |
+| `clientName`  | string | Nombre del cliente                                              |
+| `clientEmail` | string | Email del cliente                                               |
+| `date`        | string | Fecha del turno                                                 |
+| `time`        | string | Hora del turno                                                  |
+| `status`      | string | Estado de la reserva (`"pending"` por default si no se envía)   |
+| `services`    | array  | Servicios agregados: `{ service: <id del servicio>, quantity }` |
+
+Una reserva se crea con `services: []` y se le van agregando servicios después. Si se agrega el mismo servicio dos veces, no se duplica la entrada: se incrementa `quantity`.
+
 ## Endpoints
 
-Base URL local: `http://localhost:8080/api/services`
+Base URL local: `http://localhost:8080/api`
+
+### Services
 
 | Método | Ruta                 | Descripción                                                |
 | ------ | -------------------- | ---------------------------------------------------------- |
@@ -62,63 +76,78 @@ Base URL local: `http://localhost:8080/api/services`
 | PUT    | `/api/services/:sid` | Actualiza (no permite cambiar `id`). `200` o `404`         |
 | DELETE | `/api/services/:sid` | Elimina. `200` o `404`                                     |
 
+### Bookings
+
+| Método | Ruta                               | Descripción                                                               |
+| ------ | ---------------------------------- | ------------------------------------------------------------------------- |
+| POST   | `/api/bookings`                    | Crea una reserva (`services` puede iniciar vacío). `201` o `400`          |
+| GET    | `/api/bookings/:bid`               | Reserva por id. `200` si existe, `404` si no                              |
+| POST   | `/api/bookings/:bid/services/:sid` | Agrega un servicio a una reserva. Valida que ambos existan. `200` o `404` |
+
 ### Ejemplos
 
 ```bash
+# services
 curl http://localhost:8080/api/services
 curl "http://localhost:8080/api/services?category=Estética&available=true"
-curl http://localhost:8080/api/services/2
 
 curl -X POST http://localhost:8080/api/services \\
 -H "Content-Type: application/json" \\
 -d '{"name":"Depilación","description":"Cera","duration":40,"price":5000,"category":"Estética","available":true}'
 
-curl -X PUT http://localhost:8080/api/services/1 \\
+# bookings
+curl -X POST http://localhost:8080/api/bookings \\
 -H "Content-Type: application/json" \\
--d '{"price":9999}'
+-d '{"clientName":"Ana Perez","clientEmail":"ana@mail.com","date":"2026-10-01","time":"15:00"}'
 
-curl -X DELETE http://localhost:8080/api/services/2
+curl http://localhost:8080/api/bookings/1
+
+curl -X POST http://localhost:8080/api/bookings/1/services/1
 ```
 
-## Métodos de `ServiceManager`
+## Managers
+
+`ServiceManager` y `BookingManager` leen y escriben directo en sus archivos JSON (`src/data/services.json`, `src/data/bookings.json`) usando `node:fs`. Ambas instancias se crean una sola vez en `src/managers/instances.js` y se comparten entre routers, para que un servicio creado por un endpoint esté disponible de inmediato para el otro (por ejemplo, al validar `addServiceToBooking`).
 
 ```javascript
-import ServiceManager from "./src/managers/ServiceManager.js";
+import { serviceManager, bookingManager } from "./src/managers/instances.js";
 
-const manager = new ServiceManager();
-
-manager.getServices();
-// -> array con todos los servicios
-
-manager.getServiceById(2);
-// -> el servicio, o null si no existe
-
-manager.addService({
-  name: "Depilación",
-  description: "Depilación con cera",
-  duration: 40,
-  price: 5000,
-  category: "Estética",
+serviceManager.getServices();
+serviceManager.addService({
+  name: "...",
+  description: "...",
+  duration: 30,
+  price: 1000,
+  category: "...",
   available: true,
 });
-// -> el servicio creado con id autogenerado
-// si falta un campo: { error: "Faltan campos: ..." }
 
-manager.updateService(1, { price: 9999, id: 777 });
-// -> el servicio actualizado (el id nunca cambia); null si no existe
-
-manager.deleteService(2);
-// -> el servicio eliminado, o null si no existe
+bookingManager.createBooking({
+  clientName: "Ana",
+  clientEmail: "ana@mail.com",
+  date: "2026-10-01",
+  time: "15:00",
+});
+bookingManager.addServiceToBooking(1, 1); // agrega el service id=1 a la booking id=1
 ```
 
 ## Estructura del proyecto
 
 ```
 src/
-config/env.config.js # Carga y valida variables de entorno
-managers/ServiceManager.js # Lógica de gestión de servicios
-data/services.json # Datos iniciales
-app.js # Punto de entrada / pruebas manuales
+app.js                       # Configura Express y monta los routers (sin lógica de negocio)
+server.js                    # Arranca el servidor (app.listen)
+config/env.config.js         # Carga y valida variables de entorno
+managers/
+instances.js               # Instancias únicas y compartidas de los managers
+ServiceManager.js           # Lógica + persistencia de services.json
+BookingManager.js           # Lógica + persistencia de bookings.json
+routes/
+services.router.js
+bookings.router.js
+data/
+services.json
+bookings.json
 .env.example
 .gitignore
 package.json

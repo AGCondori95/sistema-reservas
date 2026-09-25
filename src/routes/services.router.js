@@ -1,8 +1,7 @@
 import { Router } from "express";
-import ServiceManager from "../managers/ServiceManager.js";
+import { serviceManager as manager } from "../managers/instances.js";
 
 const router = Router();
-const manager = new ServiceManager();
 
 // GET /api/services — todos, con filtros opcionales
 router.get("/", (req, res) => {
