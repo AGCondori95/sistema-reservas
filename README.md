@@ -135,19 +135,22 @@ bookingManager.addServiceToBooking(1, 1); // agrega el service id=1 a la booking
 
 ```
 src/
-app.js                       # Configura Express y monta los routers (sin lógica de negocio)
-server.js                    # Arranca el servidor (app.listen)
-config/env.config.js         # Carga y valida variables de entorno
-managers/
-instances.js               # Instancias únicas y compartidas de los managers
-ServiceManager.js           # Lógica + persistencia de services.json
-BookingManager.js           # Lógica + persistencia de bookings.json
-routes/
-services.router.js
-bookings.router.js
-data/
-services.json
-bookings.json
+  app.js
+  server.js
+  config/env.config.js
+  controllers/
+    services.controller.js
+    bookings.controller.js
+  managers/
+    instances.js
+    ServiceManager.js
+    BookingManager.js
+  routes/
+    services.router.js
+    bookings.router.js
+  data/
+    services.json
+    bookings.json
 .env.example
 .gitignore
 package.json
