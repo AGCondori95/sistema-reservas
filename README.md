@@ -156,3 +156,17 @@ src/
 package.json
 README.md
 ```
+
+## Arquitectura en capas
+
+```
+Router → Controller → Service → Repository → DAO → archivo JSON
+```
+
+- **Router**: define los endpoints y los conecta a su controller. No tiene lógica.
+- **Controller**: lee `req.params`/`req.query`/`req.body`, llama al service correspondiente y responde con `res.status().json()`. No conoce reglas de negocio ni el archivo JSON.
+- **Service**: contiene las reglas de negocio (validación de campos requeridos, que el `id` no se pueda modificar, que agregar un servicio repetido a una reserva incremente `quantity` en vez de duplicar la entrada). No conoce `req`/`res`.
+- **Repository**: expone métodos de acceso a datos (`getAll`, `getById`, `create`, `update`, `delete`) sin reglas de negocio — es una capa de abstracción sobre el DAO, pensada para que el día de mañana el motor de persistencia cambie (por ejemplo a MongoDB con Mongoose) sin que el service se entere.
+- **DAO**: la única capa que toca el archivo `.json` directamente, con `node:fs`. No valida nada de negocio.
+
+`bookings.service.js` depende de `services.service.js` para validar que un servicio exista antes de agregarlo a una reserva — la validación cruzada entre recursos vive en la capa de service, nunca en el DAO ni en el repository.

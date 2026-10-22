@@ -1,7 +1,7 @@
-import { bookingManager } from "../managers/instances.js";
+import bookingsService from "../services/bookings.service.js";
 
 export const createBooking = (req, res) => {
-  const result = bookingManager.createBooking(req.body);
+  const result = bookingsService.createBooking(req.body);
   if (result.error) {
     return res.status(400).json(result);
   }
@@ -9,7 +9,7 @@ export const createBooking = (req, res) => {
 };
 
 export const getBookingById = (req, res) => {
-  const booking = bookingManager.getBookingById(req.params.bid);
+  const booking = bookingsService.getBookingById(req.params.bid);
   if (!booking) {
     return res.status(404).json({ error: "Reserva no encontrada" });
   }
@@ -17,7 +17,7 @@ export const getBookingById = (req, res) => {
 };
 
 export const addServiceToBooking = (req, res) => {
-  const result = bookingManager.addServiceToBooking(
+  const result = bookingsService.addServiceToBooking(
     req.params.bid,
     req.params.sid,
   );
